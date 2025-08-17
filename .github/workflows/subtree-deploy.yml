@@ -1,0 +1,40 @@
+name: Deploy Site Folder to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-subtree:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Deploy using git subtree push
+        run: |
+          echo "🚀 Deploying site folder to gh-pages branch..."
+          
+          # Check if gh-pages branch exists, create if not
+          if ! git ls-remote --exit-code --heads origin gh-pages; then
+            echo "📝 Creating gh-pages branch..."
+            git subtree push --prefix=site origin gh-pages || git push origin `git subtree split --prefix=site main`:gh-pages --force
+          else
+            echo "📤 Pushing to existing gh-pages branch..."
+            git subtree push --prefix=site origin gh-pages
+          fi
+          
+          echo "✅ Successfully deployed site folder to GitHub Pages!"
+          echo "🌐 Your site will be available at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
