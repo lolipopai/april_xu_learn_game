@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>April Xu's Learning Website</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <h1><i class="fas fa-graduation-cap"></i> Welcome to April Xu's Learning Website</h1>
+            <p class="subtitle">A fun place to learn and grow!</p>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="container">
+            <ul>
+                <li><a href="#learning" class="nav-link"><i class="fas fa-book"></i> Learning</a></li>
+                <li><a href="#students" class="nav-link"><i class="fas fa-users"></i> Students</a></li>
+                <li><a href="#points" class="nav-link"><i class="fas fa-trophy"></i> Points & Games</a></li>
+                <li><a href="#back-to-school" class="nav-link"><i class="fas fa-school"></i> Back to School</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            
+            <!-- Learning Section -->
+            <section id="learning" class="learning-section">
+                <h2><i class="fas fa-lightbulb"></i> Learning Activities</h2>
+                <div class="learning-grid">
+                    <div class="learning-card">
+                        <div class="card-icon">
+                            <i class="fas fa-language"></i>
+                        </div>
+                        <h3>Language Learning</h3>
+                        <p>Practice vocabulary, grammar, and communication skills</p>
+                        <button class="btn-primary" onclick="openActivity('language')">Start Learning</button>
+                    </div>
+                    
+                    <div class="learning-card">
+                        <div class="card-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <h3>Reading</h3>
+                        <p>Improve reading comprehension and discover new stories</p>
+                        <button class="btn-primary" onclick="openActivity('reading')">Start Reading</button>
+                    </div>
+                    
+                    <div class="learning-card">
+                        <div class="card-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3>Emotion Learning</h3>
+                        <p>Understand feelings and develop emotional intelligence</p>
+                        <button class="btn-primary" onclick="openActivity('emotion')">Explore Emotions</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Students Section -->
+            <section id="students" class="students-section">
+                <h2><i class="fas fa-users"></i> Student Information</h2>
+                <div class="student-form">
+                    <h3>Enter Your Information</h3>
+                    <form id="studentForm">
+                        <div class="form-group">
+                            <label for="studentName"><i class="fas fa-user"></i> Student Name:</label>
+                            <input type="text" id="studentName" name="studentName" placeholder="Enter your name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="grade"><i class="fas fa-school"></i> Select Your Grade:</label>
+                            <select id="grade" name="grade">
+                                <option value="">Choose your grade</option>
+                                <option value="prek">Pre-K</option>
+                                <option value="kindergarten">Kindergarten</option>
+                                <option value="1st">1st Grade</option>
+                                <option value="2nd">2nd Grade</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn-secondary">Save Information</button>
+                    </form>
+                </div>
+                
+                <div class="current-student" id="currentStudent" style="display: none;">
+                    <h3>Current Student</h3>
+                    <div class="student-info">
+                        <p><strong>Name:</strong> <span id="displayName"></span></p>
+                        <p><strong>Grade:</strong> <span id="displayGrade"></span></p>
+                        <p><strong>Points:</strong> <span id="displayPoints">0</span></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Points and Games Section -->
+            <section id="points" class="points-section">
+                <h2><i class="fas fa-trophy"></i> Points, Games & Rewards</h2>
+                <div class="points-grid">
+                    <div class="points-card">
+                        <div class="card-icon points-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h3>Your Points</h3>
+                        <div class="points-display">
+                            <span id="totalPoints">0</span>
+                            <small>points earned</small>
+                        </div>
+                    </div>
+                    
+                    <div class="points-card">
+                        <div class="card-icon games-icon">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <h3>Games</h3>
+                        <p>Fun educational games to play</p>
+                        <button class="btn-primary" onclick="openGames()">Play Games</button>
+                    </div>
+                    
+                    <div class="points-card">
+                        <div class="card-icon sports-icon">
+                            <i class="fas fa-football-ball"></i>
+                        </div>
+                        <h3>Sports</h3>
+                        <p>Physical activities and sports challenges</p>
+                        <button class="btn-primary" onclick="openSports()">Get Active</button>
+                    </div>
+                    
+                    <div class="points-card">
+                        <div class="card-icon prize-icon">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <h3>Prizes</h3>
+                        <p>Redeem your points for amazing prizes!</p>
+                        <button class="btn-primary" onclick="openPrizes()">View Prizes</button>
+                    </div>
+                </div>
+                
+                <div class="achievements">
+                    <h3><i class="fas fa-medal"></i> Recent Achievements</h3>
+                    <div id="achievementsList" class="achievements-list">
+                        <p class="no-achievements">Complete activities to earn achievements!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Back to School Learning App -->
+            <section id="back-to-school" class="back-to-school-section">
+                <h2><i class="fas fa-school"></i> Back to School Learning App</h2>
+                <div class="app-preview">
+                    <div class="app-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="app-content">
+                        <h3>Interactive Learning Experience</h3>
+                        <p>Get ready for the new school year with our comprehensive learning app featuring:</p>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Grade-appropriate curriculum</li>
+                            <li><i class="fas fa-check"></i> Interactive exercises</li>
+                            <li><i class="fas fa-check"></i> Progress tracking</li>
+                            <li><i class="fas fa-check"></i> Fun rewards system</li>
+                        </ul>
+                        <button class="btn-featured" onclick="launchApp()">Launch Learning App</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2024 April Xu's Learning Website. Making learning fun and engaging!</p>
+        </div>
+    </footer>
+
+    <!-- Modal for Activities -->
+    <div id="activityModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
