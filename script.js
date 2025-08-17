@@ -7,6 +7,11 @@ let currentStudent = {
 
 let achievements = [];
 
+// API Configuration
+const DICTIONARY_API_URL = 'https://api.dictionaryapi.dev/api/v2/entries/en/';
+const TRIVIA_API_URL = 'https://opentdb.com/api.php';
+const NASA_API_URL = 'https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY';
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     loadStudentData();
@@ -521,6 +526,20 @@ function openGames() {
                     <h4 style="margin-bottom: 1rem; font-size: 1.3rem;">Rhythm Learning</h4>
                     <p style="margin-bottom: 1.5rem; opacity: 0.8;">Learn with music and rhythm!</p>
                     <button class="btn-primary" onclick="playRhythmGame()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 25px; cursor: pointer; font-weight: 600;">Play Now!</button>
+                </div>
+                
+                <div class="arcade-game-card" style="background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); padding: 2rem; border-radius: 15px; color: white; text-align: center; transition: transform 0.3s ease; box-shadow: 0 8px 25px rgba(116, 185, 255, 0.3);">
+                    <div class="game-icon" style="font-size: 3.5rem; margin-bottom: 1rem;">🧠</div>
+                    <h4 style="margin-bottom: 1rem; font-size: 1.3rem;">Trivia Challenge ⭐</h4>
+                    <p style="margin-bottom: 1.5rem; opacity: 0.9;">Answer real trivia questions from around the world!</p>
+                    <button class="btn-primary" onclick="playTriviaGame('easy')" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid rgba(255,255,255,0.3); padding: 0.8rem 1.5rem; border-radius: 25px; cursor: pointer; font-weight: 600;">Play Now!</button>
+                </div>
+                
+                <div class="arcade-game-card" style="background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%); padding: 2rem; border-radius: 15px; color: white; text-align: center; transition: transform 0.3s ease; box-shadow: 0 8px 25px rgba(253, 121, 168, 0.3);">
+                    <div class="game-icon" style="font-size: 3.5rem; margin-bottom: 1rem;">🚀</div>
+                    <h4 style="margin-bottom: 1rem; font-size: 1.3rem;">Space Explorer ⭐</h4>
+                    <p style="margin-bottom: 1.5rem; opacity: 0.9;">Explore real NASA space images and learn!</p>
+                    <button class="btn-primary" onclick="playSpaceExplorer()" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid rgba(255,255,255,0.3); padding: 0.8rem 1.5rem; border-radius: 25px; cursor: pointer; font-weight: 600;">Play Now!</button>
                 </div>
                 
             </div>
@@ -2029,6 +2048,76 @@ window.onclick = function(event) {
     }
 }
 
+// ============================================
+// 🚀 API INTEGRATION FUNCTIONS
+// ============================================
+
+// Dictionary API for word definitions
+async function getWordDefinition(word) {
+    try {
+        const response = await fetch(`${DICTIONARY_API_URL}${word.toLowerCase()}`);
+        if (!response.ok) {
+            throw new Error('Word not found');
+        }
+        const data = await response.json();
+        return {
+            word: data[0].word,
+            phonetic: data[0].phonetic || '',
+            meaning: data[0].meanings[0].definitions[0].definition,
+            example: data[0].meanings[0].definitions[0].example || '',
+            partOfSpeech: data[0].meanings[0].partOfSpeech || '',
+            audio: data[0].phonetics.find(p => p.audio)?.audio || ''
+        };
+    } catch (error) {
+        console.error('Dictionary API error:', error);
+        return null;
+    }
+}
+
+// Trivia API for quiz questions
+async function getTriviaQuestions(category = '', difficulty = 'easy', amount = 5) {
+    try {
+        let url = `${TRIVIA_API_URL}?amount=${amount}&difficulty=${difficulty}&type=multiple`;
+        if (category) {
+            url += `&category=${category}`;
+        }
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.response_code === 0) {
+            return data.results.map(q => ({
+                question: q.question,
+                correctAnswer: q.correct_answer,
+                incorrectAnswers: q.incorrect_answers,
+                category: q.category,
+                difficulty: q.difficulty
+            }));
+        }
+        return [];
+    } catch (error) {
+        console.error('Trivia API error:', error);
+        return [];
+    }
+}
+
+// NASA API for space content
+async function getNASAImageOfDay() {
+    try {
+        const response = await fetch(NASA_API_URL);
+        const data = await response.json();
+        return {
+            title: data.title,
+            explanation: data.explanation,
+            url: data.url,
+            date: data.date
+        };
+    } catch (error) {
+        console.error('NASA API error:', error);
+        return null;
+    }
+}
+
 // Smooth scrolling for navigation
 function setupSmoothScrolling() {
     document.querySelectorAll('.nav-link').forEach(link => {
@@ -2154,17 +2243,20 @@ function getVocabularyGames(grade) {
         'kindergarten': [
             { id: 'colors', name: 'Color Words', description: 'Match colors with their names', difficulty: 'easy', points: 5, cost: 2, icon: '🌈' },
             { id: 'shapes', name: 'Shape Hunt', description: 'Find and name different shapes', difficulty: 'medium', points: 8, cost: 3, icon: '🔷' },
-            { id: 'family', name: 'Family Words', description: 'Learn family member names', difficulty: 'easy', points: 6, cost: 2, icon: '👨‍👩‍👧‍👦' }
+            { id: 'family', name: 'Family Words', description: 'Learn family member names', difficulty: 'easy', points: 6, cost: 2, icon: '👨‍👩‍👧‍👦' },
+            { id: 'word-explorer', name: 'Word Explorer 🌟', description: 'Discover real word meanings with audio!', difficulty: 'easy', points: 8, cost: 3, icon: '📖', apiGame: true }
         ],
         '1st': [
             { id: 'rhyme', name: 'Rhyme Time', description: 'Find words that rhyme', difficulty: 'medium', points: 10, cost: 4, icon: '🎵' },
             { id: 'opposite', name: 'Opposites', description: 'Match opposite words', difficulty: 'medium', points: 10, cost: 4, icon: '⚖️' },
-            { id: 'weather', name: 'Weather Words', description: 'Learn weather vocabulary', difficulty: 'easy', points: 8, cost: 3, icon: '🌤️' }
+            { id: 'weather', name: 'Weather Words', description: 'Learn weather vocabulary', difficulty: 'easy', points: 8, cost: 3, icon: '🌤️' },
+            { id: 'word-explorer', name: 'Word Explorer 🌟', description: 'Discover real word meanings with audio!', difficulty: 'medium', points: 12, cost: 4, icon: '📖', apiGame: true }
         ],
         '2nd': [
             { id: 'synonyms', name: 'Synonym Match', description: 'Find words with similar meanings', difficulty: 'hard', points: 15, cost: 6, icon: '🔗' },
             { id: 'compound', name: 'Compound Words', description: 'Build compound words', difficulty: 'hard', points: 15, cost: 6, icon: '🏠' },
-            { id: 'categories', name: 'Word Categories', description: 'Sort words into groups', difficulty: 'medium', points: 12, cost: 5, icon: '📚' }
+            { id: 'categories', name: 'Word Categories', description: 'Sort words into groups', difficulty: 'medium', points: 12, cost: 5, icon: '📚' },
+            { id: 'word-explorer', name: 'Word Explorer 🌟', description: 'Discover real word meanings with audio!', difficulty: 'hard', points: 18, cost: 7, icon: '📖', apiGame: true }
         ]
     };
     return games[grade] || games['kindergarten'];
@@ -2332,6 +2424,34 @@ function getGameContent(category, gameId, difficulty) {
                         </div>
                         <input type="hidden" id="selectedAnimal" value="">
                         <input type="hidden" id="correctAnimal" value="cow">
+                    </div>
+                `
+            },
+            'word-explorer': {
+                title: 'Word Explorer',
+                icon: '📖',
+                instruction: 'Enter a word to explore its meaning!',
+                content: `
+                    <div class="word-explorer-game">
+                        <p class="question">🔍 What word would you like to explore today?</p>
+                        <div class="word-input-section">
+                            <input type="text" id="wordInput" placeholder="Type any word..." 
+                                   style="padding: 10px; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; width: 80%; margin-bottom: 10px;">
+                            <button class="btn-primary" onclick="exploreWord()" style="margin-left: 10px;">
+                                🔍 Explore Word
+                            </button>
+                        </div>
+                        <div id="wordResult" style="margin-top: 20px; display: none;">
+                            <div class="word-definition-card" style="background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 4px solid #007bff;">
+                                <h4 id="exploredWord" style="color: #007bff; margin-bottom: 10px;"></h4>
+                                <p id="wordPhonetic" style="color: #6c757d; font-style: italic; margin-bottom: 10px;"></p>
+                                <div id="wordAudio" style="margin-bottom: 15px;"></div>
+                                <p><strong>Part of Speech:</strong> <span id="wordType"></span></p>
+                                <p><strong>Definition:</strong> <span id="wordDefinition"></span></p>
+                                <p id="wordExample" style="margin-top: 10px; font-style: italic; color: #495057;"></p>
+                            </div>
+                        </div>
+                        <input type="hidden" id="explorationComplete" value="false">
                     </div>
                 `
             }
@@ -2518,6 +2638,226 @@ function skipGame(points) {
             <button class="btn-primary" onclick="closeModal()">Keep Learning</button>
         </div>
     `);
+}
+
+// ============================================
+// 🌟 API-POWERED GAME FUNCTIONS
+// ============================================
+
+// Word Explorer - using Dictionary API
+async function exploreWord() {
+    const wordInput = document.getElementById('wordInput');
+    const word = wordInput.value.trim().toLowerCase();
+    
+    if (!word) {
+        alert('Please enter a word to explore!');
+        return;
+    }
+    
+    // Show loading
+    const resultDiv = document.getElementById('wordResult');
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `
+        <div style="text-align: center; padding: 20px;">
+            <div style="font-size: 2rem;">🔍</div>
+            <p>Exploring the word "${word}"...</p>
+        </div>
+    `;
+    
+    // Fetch word definition
+    const wordData = await getWordDefinition(word);
+    
+    if (wordData) {
+        document.getElementById('exploredWord').textContent = wordData.word;
+        document.getElementById('wordPhonetic').textContent = wordData.phonetic || 'Pronunciation not available';
+        document.getElementById('wordType').textContent = wordData.partOfSpeech || 'Word';
+        document.getElementById('wordDefinition').textContent = wordData.meaning;
+        
+        // Add example if available
+        const exampleElement = document.getElementById('wordExample');
+        if (wordData.example) {
+            exampleElement.innerHTML = `<strong>Example:</strong> "${wordData.example}"`;
+            exampleElement.style.display = 'block';
+        } else {
+            exampleElement.style.display = 'none';
+        }
+        
+        // Add audio if available
+        const audioDiv = document.getElementById('wordAudio');
+        if (wordData.audio) {
+            audioDiv.innerHTML = `
+                <audio controls style="width: 100%;">
+                    <source src="${wordData.audio}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+                <p style="font-size: 12px; color: #666;">🔊 Click to hear pronunciation</p>
+            `;
+        } else {
+            audioDiv.innerHTML = '<p style="font-size: 12px; color: #666;">🔇 Audio not available</p>';
+        }
+        
+        // Show success result
+        resultDiv.innerHTML = `
+            <div class="word-definition-card" style="background: #f8f9fa; padding: 20px; border-radius: 12px; border-left: 4px solid #28a745;">
+                <h4 style="color: #28a745; margin-bottom: 10px;">📖 ${wordData.word}</h4>
+                <p style="color: #6c757d; font-style: italic; margin-bottom: 10px;">${wordData.phonetic || 'Pronunciation not available'}</p>
+                ${wordData.audio ? `
+                    <div style="margin-bottom: 15px;">
+                        <audio controls style="width: 100%;">
+                            <source src="${wordData.audio}" type="audio/mpeg">
+                        </audio>
+                        <p style="font-size: 12px; color: #666;">🔊 Click to hear pronunciation</p>
+                    </div>
+                ` : '<p style="font-size: 12px; color: #666; margin-bottom: 15px;">🔇 Audio not available</p>'}
+                <p><strong>Part of Speech:</strong> ${wordData.partOfSpeech || 'Word'}</p>
+                <p><strong>Definition:</strong> ${wordData.meaning}</p>
+                ${wordData.example ? `<p style="margin-top: 10px; font-style: italic; color: #495057;"><strong>Example:</strong> "${wordData.example}"</p>` : ''}
+                <div style="margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 8px;">
+                    <p style="margin: 0; color: #155724;">✅ Great exploration! You've successfully learned about a new word!</p>
+                </div>
+            </div>
+        `;
+        
+        // Mark exploration as complete
+        document.getElementById('explorationComplete').value = 'true';
+        
+    } else {
+        // Show error
+        resultDiv.innerHTML = `
+            <div style="background: #f8d7da; padding: 20px; border-radius: 12px; border-left: 4px solid #dc3545;">
+                <h4 style="color: #721c24;">❌ Word Not Found</h4>
+                <p style="color: #721c24;">Sorry, we couldn't find "${word}" in our dictionary.</p>
+                <p style="color: #721c24;">Try checking the spelling or try a different word!</p>
+                <div style="margin-top: 10px;">
+                    <strong>Suggested words to try:</strong> cat, dog, happy, run, book, sun
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Add trivia game powered by Trivia API
+async function playTriviaGame(difficulty = 'easy', category = '') {
+    const questions = await getTriviaQuestions(category, difficulty, 1);
+    
+    if (questions.length > 0) {
+        const question = questions[0];
+        const allAnswers = [...question.incorrectAnswers, question.correctAnswer].sort(() => Math.random() - 0.5);
+        
+        showModal('🧠 Trivia Challenge', `
+            <div class="trivia-game">
+                <div class="game-header">
+                    <h3>Trivia Challenge 🧠</h3>
+                    <span class="difficulty-badge ${difficulty}">${difficulty.toUpperCase()}</span>
+                </div>
+                <div class="question-section">
+                    <p class="trivia-question">${question.question}</p>
+                    <div class="trivia-answers">
+                        ${allAnswers.map((answer, index) => 
+                            `<button class="trivia-btn" onclick="selectTriviaAnswer('${answer}', '${question.correctAnswer}')">${answer}</button>`
+                        ).join('')}
+                    </div>
+                </div>
+                <div id="triviaResult" style="margin-top: 20px;"></div>
+            </div>
+        `);
+    } else {
+        showModal('Error', 'Could not load trivia questions. Please try again!');
+    }
+}
+
+function selectTriviaAnswer(selected, correct) {
+    const resultDiv = document.getElementById('triviaResult');
+    const isCorrect = selected === correct;
+    const points = isCorrect ? 10 : 3;
+    
+    if (isCorrect) {
+        addPoints(points, 'trivia challenge');
+        resultDiv.innerHTML = `
+            <div class="game-result success">
+                <div class="result-icon">🎉</div>
+                <h3>Correct!</h3>
+                <p>You earned <strong>${points} points</strong>!</p>
+            </div>
+        `;
+    } else {
+        addPoints(points, 'trying your best');
+        resultDiv.innerHTML = `
+            <div class="game-result try-again">
+                <div class="result-icon">💪</div>
+                <h3>Good Try!</h3>
+                <p>The correct answer was: <strong>${correct}</strong></p>
+                <p>You earned <strong>${points} points</strong> for trying!</p>
+            </div>
+        `;
+    }
+}
+
+// NASA Space Explorer Game
+async function playSpaceExplorer() {
+    const spaceData = await getNASAImageOfDay();
+    
+    if (spaceData) {
+        showModal('🚀 Space Explorer', `
+            <div class="space-explorer">
+                <div class="game-header">
+                    <h3>NASA Picture of the Day 🚀</h3>
+                    <p style="color: #666; font-size: 14px;">${spaceData.date}</p>
+                </div>
+                <div class="space-content">
+                    <h4>${spaceData.title}</h4>
+                    <div class="space-image" style="text-align: center; margin: 20px 0;">
+                        <img src="${spaceData.url}" alt="${spaceData.title}" 
+                             style="max-width: 100%; max-height: 300px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    </div>
+                    <div class="space-description" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <p>${spaceData.explanation}</p>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn-primary" onclick="addPoints(15, 'space exploration'); closeModal();">
+                            🌟 Amazing! (+15 points)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `);
+    } else {
+        showModal('Error', 'Could not load space content. Please try again!');
+    }
+}
+
+// Update checkGameAnswer to handle word-explorer
+const originalCheckGameAnswer = checkGameAnswer;
+function checkGameAnswer(gameId, points, difficulty) {
+    if (gameId === 'word-explorer') {
+        const explorationComplete = document.getElementById('explorationComplete');
+        if (explorationComplete && explorationComplete.value === 'true') {
+            addPoints(points, 'word exploration');
+            showModal('Excellent Exploration! 🌟', `
+                <div class="game-result success">
+                    <div class="result-icon">📖</div>
+                    <h3>Word Explorer Champion!</h3>
+                    <p>You successfully explored a new word!</p>
+                    <p>You earned <strong>${points} points</strong>!</p>
+                    <p class="encouragement">Keep exploring words to expand your vocabulary! 🚀</p>
+                    <button class="btn-primary" onclick="closeModal()">Explore More Words</button>
+                </div>
+            `);
+        } else {
+            showModal('Explore a Word First! 🔍', `
+                <div class="game-result try-again">
+                    <div class="result-icon">🔍</div>
+                    <h3>Not Yet!</h3>
+                    <p>Please enter a word and click "Explore Word" first!</p>
+                    <button class="btn-primary" onclick="closeModal()">Try Again</button>
+                </div>
+            `);
+        }
+        return;
+    }
+    
+    // Call original function for other games
+    return originalCheckGameAnswer(gameId, points, difficulty);
 }
 
 // Inject additional CSS
